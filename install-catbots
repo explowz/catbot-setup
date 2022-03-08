@@ -7,8 +7,8 @@ if [ $EUID == 0 ]; then
 fi
 
 if ! [ -e "/opt/cathook/" ]; then
-    echo "Please install Cathook on your main TF2, first."
-    echo "https://cathook.club/s/ch/git"
+    echo "Please install Cathook on your main TF2 first."
+    echo "https://github.com/explowz/cathook"
     exit
 fi
 
@@ -46,7 +46,7 @@ fi
 ./remove-legacy
 
 if [ ! -d "./cathook" ]; then
-    URL="$(curl --max-time 10 -Ls -o /dev/null -w %{url_effective} https://cathook.club/s/ch/git || echo error)"
+    URL="https://github.com/explowz/cathook.git"
     git clone --recursive $URL
 fi
 
@@ -69,11 +69,10 @@ fi
 mkdir -p user_instances
 
 if [ ! -f /opt/cathook/bin/libcathook-textmode.so ]; then
-    numcpu=$(grep -c ^processor /proc/cpuinfo)
     mkdir -p build
     pushd build
     cmake -DCMAKE_BUILD_TYPE=Release -DVisuals_DrawType="Textmode" -DVACBypass=1 -DEnableWarnings=0 ../cathook/
-    make -j$numcpu
+    make -j$(nproc --all)
     if ! [ -e "bin/libcathook.so" ]; then
         echo "FATAL: Build failed"
         exit
@@ -125,5 +124,4 @@ echo "Installation finished. Please ensure that all navmeshes are inside your ma
 echo
 echo "The web panel can be started with ./start"
 echo
-echo "Accgen is broken due to recent reCAPTCHA updates, as well as us running out of accounts to provide. You must create your own list of accounts to use for catbots."
 echo "Create a list of steam accounts, and save them to catbot-setup/accounts.txt in username:password format."
