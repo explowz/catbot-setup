@@ -12,8 +12,6 @@ fi
 
 pushd cathook
 
-GIT_REMOTE=$(git config --get remote.origin.url || echo unknown)
-
 
 git pull --ff
 git submodule update --init --recursive
