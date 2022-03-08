@@ -10,7 +10,7 @@ if [ $OLD_UPDATE != $NEW_UPDATE ]; then
 fi
 
 function updateRepoURL() {
-    local URL="$(curl --max-time 10 -Ls -o /dev/null -w %{url_effective} https://cathook.club/s/ch/git || echo error)"
+    local URL="https://github.com/explowz/cathook.git"
     local GIT_REMOTE=$(git config --get remote.origin.url || echo unknown)
     if [ "$URL" != "error" ] && [ "$GIT_REMOTE" != "$URL" ]; then
         git remote set-url origin "$URL"
@@ -21,7 +21,7 @@ function updateRepoURL() {
 pushd cathook
 
 GIT_REMOTE=$(git config --get remote.origin.url || echo unknown)
-if [ "$GIT_REMOTE" == "https://github.com/nullworks/cathook.git" ] || [ "$GIT_REMOTE" == "https://github.com/nullworks/cathook" ]; then
+if [ "$GIT_REMOTE" == "https://github.com/explowz/cathook.git" ] || [ "$GIT_REMOTE" == "https://github.com/explowz/cathook" ]; then
     updateRepoURL
 fi
 
@@ -32,8 +32,7 @@ popd
 mkdir -p build
 pushd build
 cmake -DCMAKE_BUILD_TYPE=Release -DVisuals_DrawType="Textmode" -DVACBypass=1 -DEnableWarnings=0 ../cathook/
-numcpu=$(grep -c ^processor /proc/cpuinfo)
-make -j$numcpu
+make -j$(nproc --all)
 if ! [ -e "bin/libcathook.so" ]; then
     echo "FATAL: Build failed"
     exit
@@ -72,4 +71,4 @@ echo "Copying navmeshes..."
 rsync catbot-database/nav\ meshes/*.nav ~/.steam/steam/steamapps/common/Team\ Fortress\ 2/tf/maps/
 chmod 755 ~/.steam/steam/steamapps/common/Team\ Fortress\ 2/tf/maps/*.nav # fixup permissions so tf2 is happy
 
-echo "Done."
+echo "Done"
