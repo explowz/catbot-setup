@@ -29,17 +29,17 @@ sudo mkdir -p "/opt/cathook/bin/"
 sudo cp "build/bin/libcathook.so" "/opt/cathook/bin/libcathook-textmode.so"
 
 pushd cathook-ipc-server
-git remote set-url origin https://github.com/nullworks/cathook-ipc-server
+git remote set-url origin https://github.com/nullworks/cathook-ipc-server.git
 bash update.sh
 popd
 
 pushd nullnexus-proxy
-git remote set-url origin https://gitlab.com/nullworks/cathook/nullnexus-proxy
+git remote set-url origin https://gitlab.com/nullworks/cathook/nullnexus-proxy.git
 bash update.sh
 popd
 
 pushd cathook-ipc-web-panel
-git remote set-url origin https://github.com/nullworks/cathook-ipc-web-panel
+git remote set-url origin https://github.com/explowz/cathook-ipc-web-panel.git
 bash update.sh
 popd
 
@@ -51,7 +51,7 @@ if [ -d ./catbot-database ]; then
 	git reset --hard origin/master
 	popd
 else
-	git clone --depth 1 https://github.com/nullworks/catbot-database
+	git clone --depth 1 https://github.com/nullworks/catbot-database.git
 fi
 
 echo "Copying navmeshes..."
