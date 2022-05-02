@@ -51,7 +51,7 @@ if [ -d ./catbot-database ]; then
 	git reset --hard origin/master
 	popd
 else
-	git clone --depth 1 https://github.com/nullworks/catbot-database.git
+	git clone --depth 1 https://github.com/explowz/catbot-database.git
 fi
 
 echo "Copying navmeshes..."
