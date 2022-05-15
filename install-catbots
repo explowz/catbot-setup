@@ -2,120 +2,120 @@
 set -e
 
 if [ $EUID == 0 ]; then
-    echo "This script must not be run as root"
-    exit
+  echo "This script must not be run as root"
+  exit
 fi
 
 if ! [ -e "/opt/cathook/" ]; then
-    echo "Please install Cathook on your main TF2 first."
-    echo "https://github.com/explowz/cathook"
-    exit
+  echo "Please install Cathook on your main TF2 first."
+  echo "https://github.com/explowz/cathook"
+  exit
 fi
 
 # Idiot proof this shit
 if ! [ -d ".git" ]; then
-    echo "You must clone the repo instead of downloading it."
-    exit
+  echo "You must clone the repo instead of downloading it."
+  exit
 fi
 
 if [ ! -x "$(command -v touch)" ]; then
-    echo "Touch doesn't exist. Please install it. (touch)"
-    exit
+  echo "Touch doesn't exist. Please install it. (touch)"
+  exit
 fi
 
 if [ ! -x "$(command -v route)" ] && [ ! -x /sbin/route ]; then
-    echo "Route doesn't exist. Please install it. (net-tools)"
-    exit
+  echo "Route doesn't exist. Please install it. (net-tools)"
+  exit
 fi
 
 if [ ! -x "$(command -v npm)" ]; then
-    echo "NPM doesn't exist. Please install it. (npm)"
-    exit
+  echo "NPM doesn't exist. Please install it. (npm)"
+  exit
 fi
 
 if [ ! -x "$(command -v firejail)" ]; then
-    echo "Firejail doesn't exist. Please install it. (firejail)"
-    exit
+  echo "Firejail doesn't exist. Please install it. (firejail)"
+  exit
 fi
 
 if [ ! -x "$(command -v pgrep)" ]; then
-    echo "Pgrep doesn't exist. Please install it."
-    exit
+  echo "Pgrep doesn't exist. Please install it."
+  exit
 fi
 
 ./remove-legacy
 
 if [ ! -d "./cathook" ]; then
-    URL="https://github.com/explowz/cathook.git"
-    git clone --recursive $URL
+  URL="https://github.com/explowz/cathook.git"
+  git clone --recursive $URL
 fi
 
 if [ -d ~/.steam/steam/steamapps/common/Team\ Fortress\ 2/tf/maps/ ]; then
-    if [ -d ./catbot-database ]; then
-        echo "Fetching navmeshes..."
-        pushd catbot-database
-        git fetch --depth 1
-        git reset --hard origin/master
-        popd
-    else
-        git clone --depth 1 https://github.com/explowz/catbot-database.git
-    fi
+  if [ -d ./catbot-database ]; then
+    echo "Fetching navmeshes..."
+    pushd catbot-database
+    git fetch --depth 1
+    git reset --hard origin/master
+    popd
+  else
+    git clone --depth 1 https://github.com/explowz/catbot-database.git
+  fi
 
-    echo "Copying navmeshes..."
-    rsync catbot-database/nav\ meshes/*.nav ~/.steam/steam/steamapps/common/Team\ Fortress\ 2/tf/maps/
-    chmod 755 ~/.steam/steam/steamapps/common/Team\ Fortress\ 2/tf/maps/*.nav # fixup permissions so tf2 is happy
+  echo "Copying navmeshes..."
+  rsync catbot-database/nav\ meshes/*.nav ~/.steam/steam/steamapps/common/Team\ Fortress\ 2/tf/maps/
+  chmod 755 ~/.steam/steam/steamapps/common/Team\ Fortress\ 2/tf/maps/*.nav # fixup permissions so tf2 is happy
 fi
 
 mkdir -p user_instances
 
 if [ ! -f /opt/cathook/bin/libcathook-textmode.so ]; then
-    mkdir -p build
-    pushd build
-    cmake -DCMAKE_BUILD_TYPE=Release -DVisuals_DrawType="Textmode" -DVACBypass=1 -DEnableWarnings=0 ../cathook/
-    make -j$(nproc --all)
-    if ! [ -e "bin/libcathook.so" ]; then
-        echo "FATAL: Build failed"
-        exit
-    fi
-    popd
-    sudo mkdir -p "/opt/cathook/bin/"
-    sudo mkdir -p "/opt/cathook/data/configs"
-    sudo cp "build/bin/libcathook.so" "/opt/cathook/bin/libcathook-textmode.so"
-    sudo chmod -R 0755 /opt/cathook/data/configs/
+  mkdir -p build && pushd build
+  cmake -DCMAKE_BUILD_TYPE=Release -DVisuals_DrawType="Textmode" -DVACBypass=1 -DEnableWarnings=0 ../cathook/
+  make -j"$(nproc --all)"
+  if ! [ -e "bin/libcathook.so" ]; then
+    echo "FATAL: Build failed"
+    exit
+  fi
+  popd
+  sudo mkdir -p "/opt/cathook/bin/"
+  sudo mkdir -p "/opt/cathook/data/configs"
+  sudo cp "build/bin/libcathook.so" "/opt/cathook/bin/libcathook-textmode.so"
+  sudo chmod -R 0755 /opt/cathook/data/configs/
 fi
 
 if [ ! -d "./just-disable-vac" ]; then
-    git clone https://gitlab.com/nullworks/cathook/just-disable-vac.git
-    pushd just-disable-vac
-    mkdir -p build && pushd build
-    cmake .. && make
-    popd; popd
+  git clone https://gitlab.com/nullworks/cathook/just-disable-vac.git
+  pushd just-disable-vac
+  mkdir -p build && pushd build
+  cmake .. && make
+  popd
+  popd
 fi
 
 if [ ! -d "./cathook-ipc-server" ]; then
-    git clone --recursive https://github.com/nullworks/cathook-ipc-server.git
-    pushd cathook-ipc-server
-    ./install.sh
-    popd
+  git clone --recursive https://github.com/nullworks/cathook-ipc-server.git
+  pushd cathook-ipc-server
+  ./install.sh
+  popd
 fi
 
 if [ ! -d "./cathook-ipc-web-panel" ]; then
-    git clone --recursive https://github.com/explowz/cathook-ipc-web-panel.git
-    pushd cathook-ipc-web-panel
-    ./update.sh
-    popd
+  git clone --recursive https://github.com/explowz/cathook-ipc-web-panel.git
+  pushd cathook-ipc-web-panel
+  ./update.sh
+  popd
 fi
 
 if [ ! -d "./nullnexus-proxy" ]; then
-    git clone --recursive https://gitlab.com/nullworks/cathook/nullnexus-proxy.git
-    pushd nullnexus-proxy
-    ./update.sh
-    popd
+  git clone --recursive https://gitlab.com/nullworks/cathook/nullnexus-proxy.git
+  pushd nullnexus-proxy
+  ./update.sh
+  popd
 fi
 
 if [ ! -d "./cathook-ipc-web-panel/network/wpanel-logs" ]; then
-    mkdir -p ./cathook-ipc-web-panel/network/wpanel-logs
-    touch ./cathook-ipc-web-panel/network/wpanel-logs/main.log
+  mkdir -p ./cathook-ipc-web-panel/network/wpanel-logs
+  touch ./cathook-ipc-web-panel/network/wpanel-logs/main.log
 fi
 
 sudo sed -i 's/^restricted-network yes/# restricted-network yes/g' /etc/firejail/firejail.config

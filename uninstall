@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-read -p "Press ENTER to continue"
+read -r -p "Press ENTER to continue"
 
 ./remove-legacy
 

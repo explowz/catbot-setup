@@ -19,3 +19,5 @@ Fedora/Centos
 
 Arch/Manjaro (High Support)
 `sudo pacman -Syu nodejs npm firejail net-tools xorg-xhost`
+
+To run the bots on a headless machine also install `xorg-server-xvfb`

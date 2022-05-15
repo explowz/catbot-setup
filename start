@@ -5,52 +5,67 @@
 #
 
 if [ $EUID == 0 ]; then
-    echo "This script must not be run as root"
-    exit
+  echo "This script must not be run as root"
+  exit
 fi
 
 if ! [ -d "./user_instances" ]; then
-	echo "You need to run install-catbots first."
-	exit
+  echo "You need to run install-catbots first."
+  exit
 fi
 
 if ! [ -d "./nullnexus-proxy" ]; then
-    echo "You need to run install-catbots in order to install the nullnexus proxy server first."
-    exit
+  echo "You need to run install-catbots in order to install the nullnexus proxy server first."
+  exit
+fi
+
+# TODO: find a way to only run this on machines running kernels patched with UKSM and BMQ
+sudo sysctl kernel.yield_type=2
+
+defaulttarget=$(readlink /etc/systemd/system/default.target)
+if [ "$defaulttarget" == "/usr/lib/systemd/system/multi-user.target" ]; then
+  Xvfb :0 -screen 0 640x480x24 +extension GLX -maxclients 2048 &
+  export DISPLAY=:0
 fi
 
 sudo mkdir -p /opt/steamapps
 mountpoint -q /opt/steamapps || sudo mount --bind ~/.steam/steam/steamapps/ /opt/steamapps
 
-ipcserver=$( ps faux | grep '/opt/cathook/ipc/bin/server' | grep -vw grep | awk '{ print $2 }' );
+ipcserver=$(ps faux | grep '/opt/cathook/ipc/bin/server' | grep -vw grep | awk '{ print $2 }')
 [ -z "$ipcserver" ] && /opt/cathook/ipc/bin/server -s >/dev/null &
 [ -z "$ipcserver" ] && echo $! >/tmp/cat-ipc-server.pid
 
-if [ -e "/tmp/ncat-cathook-webpanel.pid" ] && ps -p `cat "/tmp/ncat-cathook-webpanel.pid"` >/dev/null; then
-    echo IPC panel already running.
+if [ -e "/tmp/ncat-cathook-webpanel.pid" ] && ps -p "$(cat "/tmp/ncat-cathook-webpanel.pid")" >/dev/null; then
+  echo IPC panel already running.
 else
-    pushd cathook-ipc-web-panel
-    sudo PATH="$PATH" STEAM_LD_PRELOAD="$(cd ../ && pwd)/just-disable-vac/build/bin64/libvpcfs.so.0:$(cd ../ && pwd)/just-disable-vac/build/bin32/libvpcfs.so.0" bash ./run.sh &
-    popd
+  pushd cathook-ipc-web-panel || exit
+  sudo PATH="$PATH" STEAM_LD_PRELOAD="$(cd ../ && pwd)/just-disable-vac/build/bin64/libvpcfs.so.0:$(cd ../ && pwd)/just-disable-vac/build/bin32/libvpcfs.so.0" bash ./run.sh &
+  popd || exit
 fi
 
-if [ -e "/tmp/nnullnexus-proxy.pid" ] && ps -p `cat "/tmp/nnullnexus-proxy.pid"` >/dev/null; then
-    echo Nullnexus proxy already running.
+if [ -e "/tmp/nnullnexus-proxy.pid" ] && ps -p "$(cat "/tmp/nnullnexus-proxy.pid")" >/dev/null; then
+  echo Nullnexus proxy already running.
 else
-    pushd nullnexus-proxy
-    PATH="$PATH" bash ./run.sh &
-    popd
+  pushd nullnexus-proxy || exit
+  PATH="$PATH" bash ./run.sh &
+  popd || exit
+fi
+
+if [ -d "./cathook-tg-relay-bot" ]; then
+  pushd cathook-tg-relay-bot || exit
+  pm2 start bot.js
+  popd || exit
 fi
 
 if [ -x "$(command -v pulseaudio)" ]; then
-    echo "Setting up Pulseaudio socket"
-    pulse=$(pgrep -u "$USER" pulseaudio);
-    ([ ! -z "$pulse" ]) && pulseaudio --start &>/dev/null &
-    pactl load-module module-native-protocol-unix auth-anonymous=1 socket=/tmp/pulse.sock > /tmp/pulsemodule.id
+  echo "Setting up Pulseaudio socket"
+  pulse=$(pgrep -u "$USER" pulseaudio)
+  [ -n "$pulse" ] && pulseaudio --start &>/dev/null &
+  pactl load-module module-native-protocol-unix auth-anonymous=1 socket=/tmp/pulse.sock >/tmp/pulsemodule.id
 fi
 
-sleep 5;
+sleep 5
 
-echo "IPC Web Panel password: `cat /tmp/cat-webpanel-password`"
+echo "IPC Web Panel password: $(cat /tmp/cat-webpanel-password)"
 echo "Fixing NVIDIA crash"
 sudo chmod 700 /opt/steamapps/common/Team\ Fortress\ 2/tf/glshaders.cfg
