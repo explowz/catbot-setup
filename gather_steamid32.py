@@ -2,7 +2,7 @@
 
 # This script automatically gathers all SteamID32s for your bots.
 # Change make_commands to False if you'd the like SteamID32s not
-# in Cathook's change player state command, but plain.
+# as Cathook's change player state command, but plain.
 
 # Make sure you install dependencies first:
 # pip3 install -U steam[client]
