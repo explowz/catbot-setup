@@ -8,8 +8,9 @@
 # Make sure you install dependencies first:
 # pip3 install -U steam[client]
 
-import steam.client
 import json
+
+import steam.client
 
 f = open('accounts.txt', 'r')
 data = f.read()
@@ -24,13 +25,16 @@ enable_debugging = False
 enable_extra_info = False
 dump_response = False
 
+
 def debug(message):
     if enable_debugging:
         print(message)
 
+
 def extra(message):
     if enable_extra_info:
         print(message)
+
 
 for index, account in enumerate(accounts):
     username, password = account.split(':')
@@ -41,9 +45,11 @@ for index, account in enumerate(accounts):
     status = 'OK' if eresult == 1 else 'FAIL'
     print(f'Login status: {status} ({eresult})')
     if status == 'FAIL':
-        raise RuntimeError('Login failed; bailing out. See https://steam.readthedocs.io/en/stable/api/steam.enums.html#steam.enums.common.EResult for the relevant error code.')
+        raise RuntimeError(
+            'Login failed; bailing out. See https://steam.readthedocs.io/en/stable/api/steam.enums.html#steam.enums'
+            '.common.EResult for the relevant error code.')
 
-    print(f'Logged on as: {client.user.name}')
+    print(f'Logged in as: {client.user.name}')
     print(f'Community profile: {client.steam_id.community_url}')
     extra(f'Last logon (UTC): {client.user.last_logon}')
     extra(f'Last logoff (UTC): {client.user.last_logoff}')
@@ -53,7 +59,7 @@ for index, account in enumerate(accounts):
     debug(f'session.cookies: {session.cookies}')
 
     url = 'https://steamcommunity.com/actions/FileUploader'
-    id64 = client.steam_id.as_64 # type int
+    id64 = client.steam_id.as_64  # type int
     data = {
         'MAX_FILE_SIZE': '1048576',
         'type': 'player_avatar_image',
@@ -70,9 +76,11 @@ for index, account in enumerate(accounts):
 
     print('Setting profile picture...')
 
-    r = session.post(url=url, params={'type': 'player_avatar_image', 'sId':str(id64)}, files={'avatar': profile}, data=data, cookies=post_cookies)
+    r = session.post(url=url, params={'type': 'player_avatar_image', 'sId': str(id64)}, files={'avatar': profile},
+                     data=data, cookies=post_cookies)
     content = r.content.decode('ascii')
-    if dump_response: print(f'response: {content}')
+    if dump_response:
+        print(f'response: {content}')
     if not content.startswith('<!DOCTYPE html'):
         response = json.loads(content)
         raise RuntimeError(f'Error setting profile: {response["message"]}')
