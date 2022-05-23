@@ -16,3 +16,5 @@ users
 steams
 package-lock\.json
 user_instances
+# IDE specific files
+.idea/
