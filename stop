@@ -18,6 +18,8 @@ ipcserver=$(ps faux | grep '/opt/cathook/ipc/bin/server' | grep -vw grep | awk '
 ipcconsole=$(ps faux | grep '/opt/cathook/ipc/bin/console' | grep -vw grep | awk '{ print $2 }')
 [ -n "$ipcconsole" ] && sudo kill "${ipcconsole}"
 
+[ -f /tmp/.X0-lock ] && rm /tmp/.X0-lock
+
 if [ -d "./cathook-tg-relay-bot" ]; then
   pushd cathook-tg-relay-bot || exit
   pm2 stop bot.js
