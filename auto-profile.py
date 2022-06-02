@@ -9,6 +9,7 @@
 # pip3 install -U steam[client]
 
 import json
+import time
 
 import steam.client
 
@@ -93,6 +94,9 @@ for index, account in enumerate(accounts):
 
     # Spacing between accounts
     print()
+
+    # For file avatars no more than 10 avatars per 5 minutes from each IP address
+    time.sleep(31)
 
 profile.close()
 
