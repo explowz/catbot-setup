@@ -19,12 +19,12 @@ if ! [ -d "./nullnexus-proxy" ]; then
   exit
 fi
 
-# TODO: find a way to only run this on machines running kernels patched with UKSM and BMQ
+# TODO: find a way to only run this on machines running kernels patched with BMQ
 sudo sysctl kernel.yield_type=2
 
 defaulttarget=$(readlink /etc/systemd/system/default.target)
 if [ "$defaulttarget" == "/usr/lib/systemd/system/multi-user.target" ] && [ ! -f "/tmp/.X0-lock" ]; then
-  Xvfb :0 -screen 0 640x480x24 +extension GLX -maxclients 2048 &
+  Xvfb :0 -screen 0 640x200x24 +extension GLX -maxclients 2048 &
   export DISPLAY=:0
 fi
 
