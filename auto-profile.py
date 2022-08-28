@@ -22,7 +22,7 @@ data = data.replace('\r\n', '\n')
 accounts = data.split('\n')
 accounts.remove('')
 profile = open('bot-profile.jpg', 'rb')
-nickname = '[www.myg0t.win]OGBADGER'
+nickname = '[NAME HERE]'  # Enter the nickname you wish your bots to have here
 
 enable_debugging = False
 enable_extra_info = False
@@ -120,8 +120,9 @@ for index, account in enumerate(accounts):
         # Spacing between accounts
         print()
 
-        # Only pause if we're changing avatars, and we're not at the last account
-        if enable_avatarchange and index + 1 != len(accounts):
+        # Only pause if we're changing avatars, and we're not at the last account, or we have less than or equal to 15
+        # accounts in total
+        if enable_avatarchange and (index + 1 != len(accounts) or len(accounts) <= 15):
             # For file avatars no more than 10 avatars per 5 minutes from each IP address
             time.sleep(31)
 
