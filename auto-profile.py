@@ -111,20 +111,20 @@ for index, account in enumerate(accounts):
             response = json.loads(content)
             raise RuntimeError(f'Error setting profile: {response["message"]}')
 
-        print('Done; logging out.')
-        client.logout()
+    print('Done; logging out.')
+    client.logout()
 
-        # Seek to beginning; reuse file
-        profile.seek(0)
+    # Seek to beginning; reuse file
+    profile.seek(0)
 
-        # Spacing between accounts
-        print()
+    # Spacing between accounts
+    print()
 
-        # Only pause if we're changing avatars, and we're not at the last account, or we have less than or equal to 10
-        # accounts in total
-        if enable_avatarchange and (index + 1 != len(accounts) or len(accounts) <= 10):
-            # For file avatars no more than 10 avatars per 5 minutes from each IP address
-            time.sleep(31)
+    # Only pause if we're changing avatars, and we're not at the last account, or we have less than or equal to 10
+    # accounts in total
+    if enable_avatarchange and (index + 1 != len(accounts) or len(accounts) <= 10):
+        # For file avatars no more than 10 avatars per 5 minutes from each IP address
+        time.sleep(31)
 
 if enable_gatherid32:
     id_file.close()
