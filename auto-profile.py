@@ -45,6 +45,7 @@ def extra(message):
 
 if enable_gatherid32:
     open('steamid32.txt', 'w').close()  # Erase any previous contents
+    id_file = open('steamid32.txt', 'a')  # Open the file as append
 
 for index, account in enumerate(accounts):
     username, password = account.split(':')
@@ -66,7 +67,6 @@ for index, account in enumerate(accounts):
 
     if enable_gatherid32:
         id32 = str(client.steam_id.as_32)
-        id_file = open('steamid32.txt', 'a')
         if make_commands:
             id_file.write(f'cat_pl_add_id {id32} CAT\n')
             print('Saved the SteamID32 as a Cathook change playerstate command.')
@@ -120,9 +120,9 @@ for index, account in enumerate(accounts):
         # Spacing between accounts
         print()
 
-        # Only pause if we're changing avatars, and we're not at the last account, or we have less than or equal to 15
+        # Only pause if we're changing avatars, and we're not at the last account, or we have less than or equal to 10
         # accounts in total
-        if enable_avatarchange and (index + 1 != len(accounts) or len(accounts) <= 15):
+        if enable_avatarchange and (index + 1 != len(accounts) or len(accounts) <= 10):
             # For file avatars no more than 10 avatars per 5 minutes from each IP address
             time.sleep(31)
 
