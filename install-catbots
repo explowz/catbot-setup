@@ -107,6 +107,7 @@ if [ ! -d "./cathook-ipc-web-panel" ]; then
 fi
 
 if [ ! -d "./nullnexus-proxy" ]; then
+  sudo npm install pm2 -g
   git clone --recursive https://gitlab.com/nullworks/cathook/nullnexus-proxy.git
   pushd nullnexus-proxy
   ./update.sh

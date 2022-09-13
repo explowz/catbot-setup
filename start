@@ -40,11 +40,9 @@ else
   popd || exit
 fi
 
-if [ -e "/tmp/nnullnexus-proxy.pid" ] && ps -p "$(cat "/tmp/nnullnexus-proxy.pid")" >/dev/null; then
-  echo Nullnexus proxy already running.
-else
+if [ -d "./nullnexus-proxy" ]; then
   pushd nullnexus-proxy || exit
-  PATH="$PATH" bash ./run.sh &
+  pm2 start index.js
   popd || exit
 fi
 

@@ -8,6 +8,7 @@ rm -rf ./build
 rm -rf ./cathook
 rm -rf ./cathook-ipc-server
 rm -rf ./cathook-ipc-web-panel
+rm -rf ./nullnexus-proxy
 rm -rf ./just-disable-vac
 rm -rf ./user_instances
 rm -rf ./catbot-database
