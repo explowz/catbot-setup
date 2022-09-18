@@ -32,6 +32,7 @@ enable_nameclear = True
 enable_gatherid32 = True
 dump_response = False
 make_commands = True
+force_sleep = False
 
 
 def debug(message):
@@ -80,44 +81,51 @@ for index, account in enumerate(accounts):
         client.change_status(persona_state=1, player_name=nickname)
         print(f'Changed Steam nickname to "{nickname}"')
 
-    if enable_avatarchange:
+    if enable_avatarchange or enable_nameclear:
         print('Getting web_session...')
         session = client.get_web_session()
         debug(f'session.cookies: {session.cookies}')
 
-        url = 'https://steamcommunity.com/actions/FileUploader'
-        id64 = client.steam_id.as_64  # type int
-        data = {
-            'MAX_FILE_SIZE': '1048576',
-            'type': 'player_avatar_image',
-            'sId': f'{id64}',
-            'sessionid': session.cookies.get('sessionid', domain='steamcommunity.com'),
-            'doSub': '1',
-        }
-        post_cookies = {
-            'steamLogin': session.cookies.get('steamLogin', domain='steamcommunity.com'),
-            'steamLoginSecure': session.cookies.get('steamLoginSecure', domain='steamcommunity.com'),
-            'sessionid': session.cookies.get('sessionid', domain='steamcommunity.com')
-        }
-        debug(f'post_cookies: {post_cookies}')
+        if enable_avatarchange:
+            url = 'https://steamcommunity.com/actions/FileUploader'
+            id64 = client.steam_id.as_64  # type int
+            data = {
+                'MAX_FILE_SIZE': '1048576',
+                'type': 'player_avatar_image',
+                'sId': f'{id64}',
+                'sessionid': session.cookies.get('sessionid', domain='steamcommunity.com'),
+                'doSub': '1',
+            }
+            post_cookies = {
+                'steamLogin': session.cookies.get('steamLogin', domain='steamcommunity.com'),
+                'steamLoginSecure': session.cookies.get('steamLoginSecure', domain='steamcommunity.com'),
+                'sessionid': session.cookies.get('sessionid', domain='steamcommunity.com')
+            }
+            debug(f'post_cookies: {post_cookies}')
 
-        print('Setting profile picture...')
+            print('Setting profile picture...')
 
-        r = session.post(url=url, params={'type': 'player_avatar_image', 'sId': str(id64)}, files={'avatar': profile},
-                         data=data, cookies=post_cookies)
-        content = r.content.decode('ascii')
-        if dump_response:
-            print(f'response: {content}')
-        if not content.startswith('<!DOCTYPE html'):
-            response = json.loads(content)
-            raise RuntimeError(f'Error setting profile: {response["message"]}')
+            r = session.post(url=url, params={'type': 'player_avatar_image', 'sId': str(id64)},
+                             files={'avatar': profile},
+                             data=data, cookies=post_cookies)
+            content = r.content.decode('ascii')
+            if dump_response:
+                print(f'response: {content}')
+            if not content.startswith('<!DOCTYPE html'):
+                response = json.loads(content)
+                raise RuntimeError(f'Error setting profile: {response["message"]}')
 
-    if enable_nameclear:
-        # clear username history
-        id64 = client.steam_id.as_64
-        a = session.post("https://steamcommunity.com/profiles/" + str(id64) + "/ajaxclearaliashistory/", data={"sessionid": session.cookies.get("sessionid", domain="steamcommunity.com")}, cookies={"sessionid": session.cookies.get("sessionid", domain="steamcommunity.com"), "steamLoginSecure": session.cookies.get("steamLoginSecure", domain="steamcommunity.com")})
-        #print(a.text)
-        print("Cleared username history")
+        if enable_nameclear:
+            # clear username history
+            print('Clearing nickname history...')
+            id64 = client.steam_id.as_64
+            a = session.post(f'https://steamcommunity.com/profiles/{str(id64)}/ajaxclearaliashistory/',
+                             data={'sessionid': session.cookies.get('sessionid', domain='steamcommunity.com')},
+                             cookies={'sessionid': session.cookies.get('sessionid', domain='steamcommunity.com'),
+                                      'steamLoginSecure': session.cookies.get('steamLoginSecure',
+                                                                              domain='steamcommunity.com')})
+            debug(a.text)
+            print('Cleared username history')
 
     print('Done; logging out.')
     client.logout()
@@ -128,9 +136,9 @@ for index, account in enumerate(accounts):
     # Spacing between accounts
     print()
 
-    # Only pause if we're changing avatars, and we're not at the last account, or we have less than or equal to 10
-    # accounts in total
-    if enable_avatarchange and (index + 1 != len(accounts) or len(accounts) <= 10):
+    # Only pause if we're changing avatars, and we're not at the last account, we have less than or equal to 10
+    # accounts in total, or force_sleep is set to True
+    if (enable_avatarchange and (index + 1 != len(accounts) or len(accounts) <= 10)) or force_sleep:
         # For file avatars no more than 10 avatars per 5 minutes from each IP address
         time.sleep(31)
 
