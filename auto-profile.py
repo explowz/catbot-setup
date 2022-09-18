@@ -28,6 +28,7 @@ enable_debugging = False
 enable_extra_info = False
 enable_avatarchange = True
 enable_namechange = True
+enable_nameclear = True
 enable_gatherid32 = True
 dump_response = False
 make_commands = True
@@ -110,6 +111,13 @@ for index, account in enumerate(accounts):
         if not content.startswith('<!DOCTYPE html'):
             response = json.loads(content)
             raise RuntimeError(f'Error setting profile: {response["message"]}')
+
+    if enable_nameclear:
+        # clear username history
+        id64 = client.steam_id.as_64
+        a = session.post("https://steamcommunity.com/profiles/" + str(id64) + "/ajaxclearaliashistory/", data={"sessionid": session.cookies.get("sessionid", domain="steamcommunity.com")}, cookies={"sessionid": session.cookies.get("sessionid", domain="steamcommunity.com"), "steamLoginSecure": session.cookies.get("steamLoginSecure", domain="steamcommunity.com")})
+        #print(a.text)
+        print("Cleared username history")
 
     print('Done; logging out.')
     client.logout()
