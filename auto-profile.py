@@ -29,6 +29,7 @@ enable_extra_info = False
 enable_avatarchange = True
 enable_namechange = True
 enable_nameclear = True
+enable_set_up = True
 enable_gatherid32 = True
 dump_response = False
 make_commands = True
@@ -81,7 +82,7 @@ for index, account in enumerate(accounts):
         client.change_status(persona_state=1, player_name=nickname)
         print(f'Changed Steam nickname to "{nickname}"')
 
-    if enable_avatarchange or enable_nameclear:
+    if enable_avatarchange or enable_nameclear or enable_set_up:
         print('Getting web_session...')
         session = client.get_web_session()
         debug(f'session.cookies: {session.cookies}')
@@ -116,16 +117,21 @@ for index, account in enumerate(accounts):
                 raise RuntimeError(f'Error setting profile: {response["message"]}')
 
         if enable_nameclear:
-            # clear username history
             print('Clearing nickname history...')
             id64 = client.steam_id.as_64
-            a = session.post(f'https://steamcommunity.com/profiles/{str(id64)}/ajaxclearaliashistory/',
+            r = session.post(f'https://steamcommunity.com/my/ajaxclearaliashistory/',
                              data={'sessionid': session.cookies.get('sessionid', domain='steamcommunity.com')},
                              cookies={'sessionid': session.cookies.get('sessionid', domain='steamcommunity.com'),
                                       'steamLoginSecure': session.cookies.get('steamLoginSecure',
                                                                               domain='steamcommunity.com')})
-            debug(a.text)
-            print('Cleared username history')
+
+        if enable_set_up:
+            print('Setting up community profile...')
+            r = session.post(f'https://steamcommunity.com/my/edit?welcomed=1',
+                             data={'sessionid': session.cookies.get('sessionid', domain='steamcommunity.com')},
+                             cookies={'sessionid': session.cookies.get('sessionid', domain='steamcommunity.com'),
+                                      'steamLoginSecure': session.cookies.get('steamLoginSecure',
+                                                                              domain='steamcommunity.com')})
 
     print('Done; logging out.')
     client.logout()
@@ -136,9 +142,9 @@ for index, account in enumerate(accounts):
     # Spacing between accounts
     print()
 
-    # Only pause if we're changing avatars, and we're not at the last account, we have less than or equal to 10
-    # accounts in total, or force_sleep is set to True
-    if (enable_avatarchange and (index + 1 != len(accounts) or len(accounts) <= 10)) or force_sleep:
+    # Only pause if we're changing avatars or setting up the community profile, and we're not at the last account,
+    # we have less than or equal to 10 accounts in total, or force_sleep is set to True
+    if ((enable_avatarchange or enable_set_up) and (index + 1 != len(accounts) or len(accounts) <= 10)) or force_sleep:
         # For file avatars no more than 10 avatars per 5 minutes from each IP address
         time.sleep(31)
 
