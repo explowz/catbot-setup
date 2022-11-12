@@ -19,12 +19,6 @@ if ! [ -d "./nullnexus-proxy" ]; then
   exit
 fi
 
-defaulttarget=$(readlink /etc/systemd/system/default.target)
-if [ "$defaulttarget" == "/usr/lib/systemd/system/multi-user.target" ] && [ ! -f "/tmp/.X0-lock" ]; then
-  Xvfb :0 -screen 0 640x200x24 +extension GLX -maxclients 2048 &
-  export DISPLAY=:0
-fi
-
 sudo mkdir -p /opt/steamapps
 mountpoint -q /opt/steamapps || sudo mount --bind ~/.steam/steam/steamapps/ /opt/steamapps
 
