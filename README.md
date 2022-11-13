@@ -15,5 +15,3 @@ Fedora/Centos
 
 Arch/Manjaro (High Support)
 `sudo pacman -Syu nodejs npm firejail net-tools xorg-xhost xorg-server-xvfb`
-
-The `xvfb-screen` parameter in `/etc/firejail/firejail.config` should be set to `640x200x24`.
