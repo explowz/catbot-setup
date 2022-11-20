@@ -12,7 +12,7 @@ if ! [ -e "/opt/cathook/" ]; then
   exit
 fi
 
-# Idiot proof this shit
+# Idiot-proof this shit
 if ! [ -d ".git" ]; then
   echo "You must clone the repo instead of downloading it."
   exit
@@ -84,7 +84,7 @@ if [ ! -f /opt/cathook/bin/libcathook-textmode.so ]; then
 fi
 
 if [ ! -d "./just-disable-vac" ]; then
-  git clone https://gitlab.com/nullworks/cathook/just-disable-vac.git
+  git clone https://github.com/explowz/just-disable-vac.git
   pushd just-disable-vac
   mkdir -p build && pushd build
   cmake .. && make
