@@ -16,7 +16,7 @@ git submodule update --init --recursive
 popd || exit
 mkdir -p build
 pushd build || exit
-cmake -DCMAKE_BUILD_TYPE=Release -DVisuals_DrawType="Textmode" -DVACBypass=1 -DEnableWarnings=0 ../cathook/
+cmake -DCMAKE_BUILD_TYPE=Release -DVisuals_DrawType="Textmode" -DVACBypass=1 -DEnableLogging=0 ../cathook/
 make -j"$(nproc --all)"
 if ! [ -e "bin/libcathook.so" ]; then
   echo "FATAL: Build failed"
